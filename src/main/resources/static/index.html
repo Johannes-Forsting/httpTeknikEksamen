@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>Welcome</h1>
+
+
+
+<h2>Super Simple Login (no credentials sent)</h2>
+<form action="/api/cookie/dummy-login" method="post">
+    <button id="login">Dummy Login</button>
+    <button id="logout">Logout (clear Cookies)</button>
+</form>
+<br/>
+<p>Try to enter this text in the text box below, AFTER having logged in:"</p>
+<p>Hello &lt;img src='x' onerror=console.log(document.cookie)&gt;</p>
+<input id="input-text" placeholder="Write some text here"><button id="btn-search">Search</button>
+<p id="echo-text"></p>
+<hr/>
+<h2>Super Simple Session Cookie Demo</h2>
+<input id="message" placeholder="Write a cool message here"><button id="btn-submit-msg">Submit message</button>
+<button id="btn-see-my-messages">See all your messages</button>
+<ul id="all-messages"></ul>
+<script>
+    document.getElementById("btn-search").onclick = function(){
+        const txt = document.getElementById("input-text").value;
+        document.getElementById("echo-text").innerHTML = txt
+    }
+
+    document.getElementById("login").onclick = doDummyLogin
+    async function doDummyLogin(evt) {
+        evt.preventDefault()
+        const options = {method:"POST" }
+        const response = await fetch("/dummy-login",options).then(res=>res.text())
+        console.log("Response from login: "+response)
+    }
+
+    document.getElementById("logout").onclick = clearCookies
+    async function clearCookies(evt) {
+        evt.preventDefault()
+        const options = {method:"POST" }
+        const response = await fetch("/clear",options)
+    }
+
+    document.getElementById("btn-submit-msg").onclick = async function() {
+        const msgToSubmit = document.getElementById("message").value
+        fetch("/save-txt/"+msgToSubmit,{method:"POST"}).then(res=>res.text())
+    }
+
+    document.getElementById("btn-see-my-messages").onclick = async function(){
+        const messages = await fetch("/see-all-from-session").then(res=>res.json())
+        const lis = messages.map(m=>`<li>${m}</li>`).join("")
+        document.getElementById("all-messages").innerHTML = lis //Remember XSS
+    }
+
+</script>
+
+</body>
+</html>
